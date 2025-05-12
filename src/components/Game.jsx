@@ -2,9 +2,183 @@
 //Add all game utilities here
 //If code gets to messy maybe create seperate files to handle each aspect of the game 
 //and just use this file to render to the user
+import { useEffect, useRef,useState } from "react";
+import object_coords from "./objects_pos";
+import {game_timer, formatTime} from "./utils";
+import submitScore from "./CreateScore";
+
 
 const Game = () => {
+  const boardRef = useRef(null);
+  const [clickBox, setClickBox] = useState(null);
+  const [foundObjects, setFoundObjects] = useState([]);
+  const [seconds, setSeconds] = useState(0);
+  const timerCleanupRef = useRef(null);
+  const [gameOver, setGameOver] = useState(false);
+  const [username, setUsername] = useState("");
+  const [clickCount, setClickCount] = useState(0);
 
+
+    //Game timer(will eventually be hosted on back-end)
+    useEffect(() => {
+        const cleanup = game_timer(setSeconds);
+        timerCleanupRef.current = cleanup;
+        return cleanup;
+    }, []);
+
+    useEffect(() => {
+        if (foundObjects.length === object_coords.length)
+        {
+            timerCleanupRef.current?.();
+            setGameOver(true);
+        }
+    }, [foundObjects]);
+  
+  const processClick = (e) => {
+    setClickCount((prev) => prev + 1);
+    const rect = boardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    // Show temporary click box
+    setClickBox({ x, y });
+    setTimeout(() => setClickBox(null), 1000);
+
+    // Check if click hits any object
+    object_coords.forEach((obj) => {
+      if (
+        x >= obj.x_min &&
+        x <= obj.x_max &&
+        y >= obj.y_min &&
+        y <= obj.y_max
+      ) {
+        if (!foundObjects.includes(obj.name)) {
+            setFoundObjects((prev) => {
+            const updated = [...prev, obj.name];
+            console.log("✅ Found objects:", updated);
+            return updated;
+            });
+        }
+      }
+    });
+  };
+  const handleSubmit = async () => {
+    try {
+        await submitScore({
+            username,
+            clicks: clickCount,
+            time: seconds,
+        });
+        alert("✅ Score submitted!")
+    } catch (err) {
+        console.error("❌ Submit error:", err)
+        alert("Error submitting score.")
+    }
+  }
+
+  return (
+    <>
+    <div className="w-full h-screen flex justify-center items-center bg-black overflow-hidden">
+      <div
+        ref={boardRef}
+        onClick={processClick}
+        className="relative w-full max-w-[1920px] aspect-[1920/1100]"
+      >
+        {/* Background image */}
+        <img
+          src="/Game_board_complete.png"
+          alt="Game Board"
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
+
+        {/* Object hitboxes and checkmarks */}
+        {object_coords.map((obj) => (
+          <div key={obj.name}>
+            {/* Checkmark if found (appears at saved checkmark position) */}
+            {foundObjects.includes(obj.name) && obj.checkmark && (
+            <div
+                className="absolute pointer-events-none"
+                style={{
+                left: `${obj.checkmark.x * 100}%`,
+                top: `${obj.checkmark.y * 100}%`,
+                width: `${obj.checkmark.width * 100}%`,
+                height: `${obj.checkmark.height * 100}%`,
+                transform: "translate(-50%, -50%)",
+                }}
+            >
+                <img
+                src="/checkmark.png"
+                alt="Checkmark"
+                className="w-full h-full object-contain"
+                />
+            </div>
+            )}
+          </div>
+        ))}
+
+        {/* Temporary click indicator */}
+        {clickBox && (
+          <div
+            className="absolute border-2 border-yellow-400 pointer-events-none"
+            style={{
+              left: `${clickBox.x * 100}%`,
+              top: `${clickBox.y * 100}%`,
+              width: `30px`,
+              height: `30px`,
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        )}
+
+        {/*Timer & Click counter div*/}
+        <div
+            className="absolute pointer-events-none flex flex-col items-center justify-center"
+            style={{
+                left: `${(1098 / 1920) * 100}%`,
+                top: `${(848 / 1100) * 100}%`,
+                width: `${((1348 - 1098) / 1920) * 100}%`,
+                height: `${((990 - 848) / 1100) * 100}%`,
+            }}
+            >
+            <div className="text-white w-full h-full flex flex-col items-center justify-center text-[1.5vw] leading-tight text-center">
+                <p>Time: {formatTime(seconds)}</p>
+                <p>Clicks: {clickCount}</p>
+            </div>
+        </div>
+        
+      </div>
+    </div>
+    {gameOver && (
+      <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center"> 
+        <div className="bg-white p-6 rounded-lg w-80 text-center shadow-lg">
+          <h2 className="text-xl font-bold mb-4">🎉 Game Over</h2>
+          <p className="mb-2 text-gray-700">Enter your username:</p>
+          <input 
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-1 mb-4"
+            placeholder="Username"
+          />
+          <p className="mb-1 text-gray-800 font-medium">
+            🔢 Clicks: {clickCount}
+          </p>
+          <p className="mb-4 text-gray-800 font-medium">
+            ⏱️ Time: {formatTime(seconds)}
+          </p>
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={!username.trim()}
+          >
+            Submit Score
+          </button>
+        </div>
+      </div>
+    )}
+    </>
+  );
 };
 
 export default Game;
