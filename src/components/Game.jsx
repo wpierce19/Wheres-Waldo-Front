@@ -4,7 +4,7 @@
 //and just use this file to render to the user
 import { useEffect, useRef,useState } from "react";
 import object_coords from "./objects_pos";
-import {game_timer, formatTime} from "./utils";
+import {game_timer, formatTime, getToken} from "./utils";
 import submitScore from "./CreateScore";
 
 
@@ -21,17 +21,56 @@ const Game = () => {
 
     //Game timer(will eventually be hosted on back-end)
     useEffect(() => {
-        const cleanup = game_timer(setSeconds);
-        timerCleanupRef.current = cleanup;
-        return cleanup;
+      const initTimer = async () => {
+        try {
+          const token = await getToken();
+
+          await fetch("/game/start", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const cleanup = game_timer(token,setSeconds);
+          timerCleanupRef.current = cleanup;
+        } catch (err) {
+          console.error("Timer start failed:", err);
+        }
+      };
+
+      initTimer();
+      return () => timerCleanupRef.current?.();
     }, []);
 
     useEffect(() => {
-        if (foundObjects.length === object_coords.length)
-        {
-            timerCleanupRef.current?.();
-            setGameOver(true);
-        }
+      if (foundObjects.length === object_coords.length) {
+        const stopTimer = async () => {
+          timerCleanupRef.current?.();
+
+          try {
+            const token = localStorage.getItem("jwt_token");
+            const response = await fetch("/game/stop", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            const data = await response.json();
+            console.log("Backend timer stopped. Final Time: ", data.finalTime);
+            setSeconds(data.finalTime);
+          } catch (err) {
+            console.error("Error stopping time:", err);
+          }
+
+          setGameOver(true);
+        };
+
+        stopTimer();
+      }
     }, [foundObjects]);
   
   const processClick = (e) => {
