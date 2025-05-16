@@ -18,6 +18,7 @@ const Game = () => {
   const [username, setUsername] = useState("");
   const [clickCount, setClickCount] = useState(0);
   const [objectNames, setObjectNames] = useState([]);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
 
 
     //Game timer(will eventually be hosted on back-end)
@@ -138,17 +139,18 @@ const Game = () => {
   };
   const handleSubmit = async () => {
     try {
-        await submitScore({
-            username,
-            clicks: clickCount,
-            time: seconds,
-        });
-        alert("✅ Score submitted!")
+      await submitScore({
+        username,
+        clicks: clickCount,
+        time: seconds,
+      });
+      setScoreSubmitted(true); // ✅ Hide button after submit
+      alert("✅ Score submitted!");
     } catch (err) {
-        console.error("❌ Submit error:", err)
-        alert("Error submitting score.")
+      console.error("❌ Submit error:", err);
+      alert("Error submitting score.");
     }
-  }
+  };
 
   return (
     <>
@@ -241,13 +243,15 @@ const Game = () => {
           <p className="mb-4 text-gray-800 font-medium">
             ⏱️ Time: {formatTime(seconds)}
           </p>
-          <button
-            onClick={handleSubmit}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            disabled={!username.trim()}
-          >
-            Submit Score
-          </button>
+          {!scoreSubmitted && (
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              disabled={!username.trim()}
+            >
+              Submit Score
+            </button>
+          )}
         </div>
       </div>
     )}
