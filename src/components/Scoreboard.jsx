@@ -2,6 +2,7 @@
 //Will be pretty simple
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getToken } from "./utils";
 
 const Scoreboard = () => {
 
@@ -11,7 +12,7 @@ const Scoreboard = () => {
 
         useEffect(() => {
             const fetchScores = async () => {
-                const TOKEN = import.meta.env.VITE_BEARER_TOKEN;
+                const TOKEN = await getToken();
                 try {
                     const response = await fetch(`https://wheres-waldo-api-r34l.onrender.com/scoreboard`, {
                         method: "GET",
