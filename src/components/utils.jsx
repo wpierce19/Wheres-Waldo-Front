@@ -1,7 +1,7 @@
 const game_timer = (token, onTick) => {
     const interval = setInterval(async () => {
         try {
-            const res = await fetch("/game/time", {
+            const res = await fetch("https://wheres-waldo-api-r34l.onrender.com/game/time", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -31,7 +31,7 @@ export const getToken = async () => {
         const userId = generateUUID();
         localStorage.setItem("anon_user_id", userId);
 
-        const response = await fetch("/auth/token", {
+        const response = await fetch("https://wheres-waldo-api-r34l.onrender.com/auth/token", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({userId}),
