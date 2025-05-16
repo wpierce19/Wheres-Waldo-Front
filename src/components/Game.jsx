@@ -3,7 +3,6 @@
 //If code gets to messy maybe create seperate files to handle each aspect of the game 
 //and just use this file to render to the user
 import { useEffect, useRef,useState } from "react";
-import object_coords from "./objects_pos";
 import {game_timer, formatTime, getToken} from "./utils";
 import submitScore from "./CreateScore";
 
@@ -17,6 +16,7 @@ const Game = () => {
   const [gameOver, setGameOver] = useState(false);
   const [username, setUsername] = useState("");
   const [clickCount, setClickCount] = useState(0);
+  const [objectNames, setObjectNames] = useState([]);
 
 
     //Game timer(will eventually be hosted on back-end)
@@ -44,8 +44,34 @@ const Game = () => {
       return () => timerCleanupRef.current?.();
     }, []);
 
+    //retrieving object coords from backend
     useEffect(() => {
-      if (foundObjects.length === object_coords.length) {
+      const fetchObjectNames = async () => {
+        try {
+          const token = await getToken();
+          const response = await fetch("https://wheres-waldo-api-r34l.onrender.com/objects", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch object coordinates");
+
+          const data = await response.json();
+          setObjectNames(data);
+        } catch (err) {
+          console.error("Error fetching object coordinates:", err);
+        }
+      };
+
+      fetchObjectNames();
+    }, []);
+
+    useEffect(() => {
+      if (
+        objectNames.length > 0 && // ensure objectNames has loaded
+        foundObjects.length === objectNames.length
+      ) {
         const stopTimer = async () => {
           timerCleanupRef.current?.();
 
@@ -71,7 +97,7 @@ const Game = () => {
 
         stopTimer();
       }
-    }, [foundObjects]);
+    }, [foundObjects, objectNames]);
   
   const processClick = async (e) => {
     setClickCount((prev) => prev + 1);
@@ -140,7 +166,7 @@ const Game = () => {
         />
 
         {/* Object hitboxes and checkmarks */}
-        {object_coords.map((obj) => (
+        {objectNames.map((obj) => (
           <div key={obj.name}>
             {/* Checkmark if found (appears at saved checkmark position) */}
             {foundObjects.includes(obj.name) && obj.checkmark && (
