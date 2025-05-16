@@ -73,7 +73,7 @@ const Game = () => {
       }
     }, [foundObjects]);
   
-  const processClick = (e) => {
+  const processClick = async (e) => {
     setClickCount((prev) => prev + 1);
     const rect = boardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
@@ -84,22 +84,30 @@ const Game = () => {
     setTimeout(() => setClickBox(null), 1000);
 
     // Check if click hits any object
-    object_coords.forEach((obj) => {
-      if (
-        x >= obj.x_min &&
-        x <= obj.x_max &&
-        y >= obj.y_min &&
-        y <= obj.y_max
-      ) {
-        if (!foundObjects.includes(obj.name)) {
-            setFoundObjects((prev) => {
-            const updated = [...prev, obj.name];
-            console.log("✅ Found objects:", updated);
-            return updated;
-            });
-        }
+    try {
+      const token = getToken();
+      const response = await fetch("/veirfy-click", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({x,y}),
+      });
+
+      const data = await response.json();
+      const {name} = data;
+
+      if (name && !foundObjects.includes(name)){
+        setFoundObjects((prev) => {
+          const updated = [...prev, name];
+          console.log("Found object from backend: ", name);
+          return updated;
+        });
       }
-    });
+    }catch (err) {
+      console.error("Error verifying click with backend:", err);
+    }
   };
   const handleSubmit = async () => {
     try {
