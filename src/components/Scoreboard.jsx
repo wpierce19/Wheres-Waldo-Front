@@ -2,7 +2,7 @@
 //Will be pretty simple
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getToken } from "./utils";
+import { getToken, formatTime } from "./utils";
 
 const Scoreboard = () => {
 
@@ -57,9 +57,9 @@ const Scoreboard = () => {
                                         key={index} 
                                         className="flex flex-col justify-between py-2 border-b border-white last:border-b-0 text-white pl-2"
                                     >
-                                        <span>{player.username}</span>
-                                        <span>{player.time}</span>
-                                        <span>{player.clicks}</span>
+                                        <span>Username: {player.username}</span>
+                                        <span>Time: {formatTime(player.time)}</span>
+                                        <span>Clicks: {player.clicks}</span>
                                     </div>
                                 ))
                             ) : (
