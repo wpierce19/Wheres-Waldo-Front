@@ -1,11 +1,11 @@
 //Implement pushing a users score to the back-end
 //Allows user to enter a username
 //The package sent to back-end will container (username, time, CLicks?)
-
+import { getToken } from "./utils";
 
 const submitScore = async ({username, clicks, time}) => {
     const payload = { username, clicks, time };
-    const TOKEN = import.meta.env.VITE_BEARER_TOKEN;
+    const TOKEN = getToken();
     try {
         const response = await fetch("ENTER_BACK_END_URL_HERE", {
         method: "POST",
