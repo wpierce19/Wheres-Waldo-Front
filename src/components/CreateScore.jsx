@@ -5,7 +5,7 @@ import { getToken } from "./utils";
 
 const submitScore = async ({username, clicks, time}) => {
     const payload = { username, clicks, time };
-    const TOKEN = getToken();
+    const TOKEN = await getToken();
     try {
         const response = await fetch("https://wheres-waldo-api-r34l.onrender.com/scoreboard", {
         method: "POST",
