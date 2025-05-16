@@ -57,7 +57,7 @@ const Scoreboard = () => {
                                         key={index} 
                                         className="flex flex-col justify-between py-2 border-b border-white last:border-b-0 text-white pl-2"
                                     >
-                                        <span>{player.name}</span>
+                                        <span>{player.username}</span>
                                         <span>{player.time}</span>
                                         <span>{player.clicks}</span>
                                     </div>
