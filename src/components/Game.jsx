@@ -25,7 +25,7 @@ const Game = () => {
         try {
           const token = await getToken();
 
-          await fetch("/game/start", {
+          await fetch("https://wheres-waldo-api-r34l.onrender.com/game/start", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -51,7 +51,7 @@ const Game = () => {
 
           try {
             const token = localStorage.getItem("jwt_token");
-            const response = await fetch("/game/stop", {
+            const response = await fetch("https://wheres-waldo-api-r34l.onrender.com/game/stop", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const Game = () => {
     // Check if click hits any object
     try {
       const token = getToken();
-      const response = await fetch("/veirfy-click", {
+      const response = await fetch("https://wheres-waldo-api-r34l.onrender.com/verify-click", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

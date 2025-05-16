@@ -7,7 +7,7 @@ const submitScore = async ({username, clicks, time}) => {
     const payload = { username, clicks, time };
     const TOKEN = getToken();
     try {
-        const response = await fetch("ENTER_BACK_END_URL_HERE", {
+        const response = await fetch("https://wheres-waldo-api-r34l.onrender.com/scoreboard", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

@@ -13,7 +13,7 @@ const Scoreboard = () => {
             const fetchScores = async () => {
                 const TOKEN = import.meta.env.VITE_BEARER_TOKEN;
                 try {
-                    const response = await fetch(`ENTER BACK_END URL HERE`, {
+                    const response = await fetch(`https://wheres-waldo-api-r34l.onrender.com/scoreboard`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
