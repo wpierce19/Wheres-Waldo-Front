@@ -5,6 +5,7 @@
 import { useEffect, useRef,useState } from "react";
 import {game_timer, formatTime, getToken} from "./utils";
 import submitScore from "./CreateScore";
+import checkmarks from "./dependencies/checkmark_pos";
 
 
 const Game = () => {
@@ -166,26 +167,26 @@ const Game = () => {
         />
 
         {/* Object hitboxes and checkmarks */}
-        {objectNames.map((obj) => (
-          <div key={obj.name}>
+        {objectNames.map((name) => (
+          <div key={name}>
             {/* Checkmark if found (appears at saved checkmark position) */}
-            {foundObjects.includes(obj.name) && obj.checkmark && (
-            <div
+            {foundObjects.includes(name) && checkmarks[name] && (
+              <div
                 className="absolute pointer-events-none"
                 style={{
-                left: `${obj.checkmark.x * 100}%`,
-                top: `${obj.checkmark.y * 100}%`,
-                width: `${obj.checkmark.width * 100}%`,
-                height: `${obj.checkmark.height * 100}%`,
-                transform: "translate(-50%, -50%)",
+                  left: `${checkmarks[name].x * 100}%`,
+                  top: `${checkmarks[name].y * 100}%`,
+                  width: `${checkmarks[name].width * 100}%`,
+                  height: `${checkmarks[name].height * 100}%`,
+                  transform: "translate(-50%, -50%)",
                 }}
-            >
+              >
                 <img
-                src="/checkmark.png"
-                alt="Checkmark"
-                className="w-full h-full object-contain"
+                  src="/checkmark.png"
+                  alt="Checkmark"
+                  className="w-full h-full object-contain"
                 />
-            </div>
+              </div>
             )}
           </div>
         ))}
