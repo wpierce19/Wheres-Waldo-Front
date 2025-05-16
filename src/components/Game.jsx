@@ -225,7 +225,7 @@ const Game = () => {
         
       </div>
     </div>
-    {gameOver && (
+    {gameOver && !scoreSubmitted && (
       <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center"> 
         <div className="bg-white p-6 rounded-lg w-80 text-center shadow-lg">
           <h2 className="text-xl font-bold mb-4">🎉 Game Over</h2>
@@ -243,15 +243,13 @@ const Game = () => {
           <p className="mb-4 text-gray-800 font-medium">
             ⏱️ Time: {formatTime(seconds)}
           </p>
-          {!scoreSubmitted && (
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              disabled={!username.trim()}
-            >
-              Submit Score
-            </button>
-          )}
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={!username.trim()}
+          >
+            Submit Score
+          </button>
         </div>
       </div>
     )}
